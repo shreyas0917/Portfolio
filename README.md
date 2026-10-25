@@ -1,11 +1,65 @@
 # Shreyas Wani — Portfolio
 
-[![CI](https://github.com/shreyas0917/REPO-NAME/actions/workflows/ci.yml/badge.svg)](https://github.com/shreyas0917/REPO-NAME/actions/workflows/ci.yml)
-<!-- Replace REPO-NAME (both places) with this repository's name once it's on GitHub. -->
+[![CI](https://github.com/shreyas0917/Portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/shreyas0917/Portfolio/actions/workflows/ci.yml)
+![React](https://img.shields.io/badge/React-18-149ECA?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)
 
-React + TypeScript + Vite site with an "observability console" design: charcoal/slate
-palette, status-light accents (green healthy · amber retry · red failure), a generative
-"live system" hero, and motion that respects `prefers-reduced-motion`.
+![Portfolio home page, dark theme](docs/screenshot.png)
+
+A personal developer portfolio for a backend and AI systems engineer, designed as an
+**observability console**: a charcoal/slate palette, status-light accents (green healthy ·
+amber retry · red failure), a generative "live system" hero, and motion that respects
+`prefers-reduced-motion`.
+
+## Contents
+
+- [Features](#features) · [Tech stack](#tech-stack) · [Projects featured](#projects-featured)
+- [Run it](#run-it) · [CI](#ci) · [Contact form](#contact-form-formspree) · [Deploy](#deploy)
+- [Structure](#structure) · [SEO and social previews](#seo-social-previews-and-icons)
+- [Editing content](#editing-skills-experience-and-education) · [Performance notes](#performance-notes-keep-these-when-extending)
+
+## Features
+
+- **Home sections:** hero, about, projects, skills, experience, education and contact.
+- **Project pages** (`/projects/:slug`): problem, approach, decisions, testing, learnings,
+  an interactive architecture diagram with a replayable trace, and a screenshot gallery.
+- **Skills with evidence:** each skill is marked as used in projects, used to build this
+  site, or hands-on practice. "Used in projects" links are derived from the project data,
+  so a skill is never linked to a project that doesn't use it.
+- **Command palette** (`Ctrl K` / `⌘K`): jump to any section or project, copy the email,
+  open the résumé, toggle the theme.
+- **Light and dark themes**, applied before first paint so there is no flash.
+- **Accessible by default:** keyboard navigation, visible focus, 44 px hit areas on
+  buttons and links, reduced-motion support, and axe-clean in both themes.
+- **Fast:** Lighthouse 96 mobile / 100 desktop on the home page, with zero layout shift.
+- **SEO ready:** per-route `<head>`, Open Graph images, icons, sitemap, robots and JSON-LD,
+  all generated at build time.
+- **Contact form** through Formspree, with validation, a honeypot and retry handling.
+
+## Tech stack
+
+| Area | Tools |
+| --- | --- |
+| App | React 18, TypeScript (strict), Vite 5, React Router 6 |
+| Styling | Tailwind CSS 3 with CSS-variable design tokens, self-hosted Fontsource fonts |
+| Motion | Framer Motion (`LazyMotion`), GSAP (lazy), Lenis smooth scroll |
+| Build assets | satori and resvg for Open Graph images and icons |
+| CI | GitHub Actions: typecheck and build on every push and PR |
+| Hosting | Static; configured for Vercel (`vercel.json`) and Netlify (`netlify.toml`) |
+
+## Projects featured
+
+| Project | What it is |
+| --- | --- |
+| **Retrace** | RAG Reliability & Failure Diagnosis System |
+| **EventGuard** | Idempotent Distributed Event Processing Platform |
+| **Live Google Jobs Aggregator** | Data Engineering Pipeline |
+| **Production-Ready URL Shortener** | Cached, Rate-Limited Short-Link Service |
+| **NextLevel Food** | Recipe-Sharing Platform |
+
+Each has its own page on the site, built from `src/data/projects.ts`.
 
 ## Run it
 
