@@ -6,7 +6,9 @@
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)
 
-![Portfolio home page, dark theme](docs/screenshot.png)
+**Live site: [shreyas-portfolio-eight.vercel.app](https://shreyas-portfolio-eight.vercel.app/)**
+
+[![Portfolio home page, dark theme](docs/screenshot.png)](https://shreyas-portfolio-eight.vercel.app/)
 
 A personal developer portfolio for a backend and AI systems engineer, designed as an
 **observability console**: a charcoal/slate palette, status-light accents (green healthy ·
