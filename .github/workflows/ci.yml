@@ -1,0 +1,43 @@
+# CI for the portfolio: install, typecheck, lint (when a lint script exists) and a
+# production build, on every push and pull request to main. No deploy step:
+# Vercel builds and deploys on its own.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A newer push to the same branch cancels the run still in progress.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint (if configured)
+        run: npm run lint --if-present
+
+      # Also generates the share images, icons, sitemap and per-route HTML.
+      - name: Build
+        run: npm run build

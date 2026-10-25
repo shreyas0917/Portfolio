@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Title, description, canonical, Open Graph, Twitter and JSON-LD for the
+         route: written at build time from src/lib/seo.ts (scripts/site-assets.ts). -->
+    <!--seo-->
+    <title>Shreyas Wani — Backend & AI Systems Engineer</title>
+    <!--/seo-->
+    <meta name="theme-color" content="#F4F6F9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0A0C10" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Set theme before paint to avoid a flash of the wrong theme. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme')
+          if (t !== 'light' && t !== 'dark') {
+            t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+          }
+          document.documentElement.setAttribute('data-theme', t)
+          // The site's own theme wins over the OS one for the browser chrome too.
+          document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
+            m.setAttribute('content', t === 'light' ? '#F4F6F9' : '#0A0C10')
+          })
+        } catch (e) {}
+      })()
+    </script>
+
+    <!-- First-visit boot sequence: an overlay painted from this HTML before any
+         JavaScript loads, while the page renders underneath. About 1.1 s, any key,
+         click or tap skips it. Shown once per tab session, on the home page only;
+         never after back/forward navigation, under reduced motion, or in a
+         background tab. While html.booting is set, the hero's copy holds its
+         intro ([data-boot-hold]) and plays it as the overlay fades. -->
+    <style>
+      #boot { display: none }
+      .booting #boot, .boot-out #boot {
+        position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center;
+        padding: 0 16px; background: #0A0C10; color: #AEB7C6;
+        font: 400 13px/2 "JetBrains Mono Variable", "JetBrains Mono Fallback", ui-monospace, monospace;
+        transition: opacity .22s ease;
+      }
+      [data-theme='light'] #boot { background: #F4F6F9; color: #3A4452 }
+      .boot-out #boot { opacity: 0; pointer-events: none }
+      #boot .c { width: min(100%, 25rem) }
+      #boot p { margin: 0 }
+      #boot .row { display: flex; flex-wrap: wrap; column-gap: 14px }
+      #boot .st { display: flex; align-items: center; gap: 8px }
+      @media (max-width: 400px) {
+        .booting #boot, .boot-out #boot { font-size: 12px }
+        #boot .row { column-gap: 9px }
+        #boot .k { gap: 4px }
+      }
+      #boot .a { animation: boot-in .16s ease-out both }
+      #boot .p { color: #4FD1C5 }
+      #boot .m { color: #758091 }
+      #boot .ok { color: #3FB950 }
+      [data-theme='light'] #boot .p { color: #0E7490 }
+      [data-theme='light'] #boot .ok { color: #1A7F37 }
+      #boot .k { display: inline-flex; align-items: center; gap: 6px }
+      #boot svg { width: 11px; height: 11px; flex-shrink: 0 }
+      #boot .d { width: 7px; height: 7px; border-radius: 50%; background: currentColor }
+      #boot .dots { animation: boot-dots .54s steps(4) both; display: inline-block; overflow: hidden; width: 3ch; vertical-align: bottom }
+      #boot .bar { display: block; height: 1px; margin-top: 10px; background: #4FD1C5; transform-origin: left; animation: boot-bar .66s cubic-bezier(.4, 0, .2, 1) both }
+      [data-theme='light'] #boot .bar { background: #0E7490 }
+      @keyframes boot-in { from { opacity: 0; transform: translateY(3px) } }
+      @keyframes boot-dots { from { width: 0 } }
+      @keyframes boot-bar { from { transform: scaleX(0) } }
+      .booting [data-boot-hold] .intro, .booting [data-boot-hold].intro { animation-play-state: paused }
+    </style>
+    <script>
+      (function () {
+        var root = document.documentElement
+        try {
+          var nav = performance.getEntriesByType('navigation')[0]
+          if (
+            location.pathname !== '/' || location.hash || (nav && nav.type === 'back_forward') ||
+            matchMedia('(prefers-reduced-motion: reduce)').matches || document.visibilityState === 'hidden' ||
+            sessionStorage.getItem('booted')
+          ) return
+          sessionStorage.setItem('booted', '1')
+        } catch (e) {
+          return // no storage: it couldn't be shown just once, so skip it
+        }
+        var events = ['keydown', 'pointerdown', 'touchstart', 'wheel']
+        var done = false
+        function end() {
+          if (done) return
+          done = true
+          events.forEach(function (t) { removeEventListener(t, end, true) })
+          root.classList.remove('booting')
+          root.classList.add('boot-out')
+          dispatchEvent(new Event('boot:done'))
+          setTimeout(function () {
+            root.classList.remove('boot-out')
+            var el = document.getElementById('boot')
+            if (el) el.remove()
+          }, 230)
+        }
+        root.classList.add('booting')
+        events.forEach(function (t) { addEventListener(t, end, { capture: true, passive: true }) })
+        setTimeout(end, 870)
+      })()
+    </script>
+
+    <!-- Fonts (Space Grotesk + JetBrains Mono) are self-hosted via Fontsource and
+         bundled by Vite; both Latin subsets are preloaded at build time (see
+         vite.config.ts).
+         The LCP portrait is preloaded at high priority. Only the home page shows
+         it: the build removes this tag from the project pages and from the SPA
+         fallback (app.html), where it would be a wasted download and a console
+         warning (scripts/site-assets.ts). -->
+    <link rel="preload" as="image" type="image/webp" href="/shreyas-800.webp" fetchpriority="high"
+      imagesrcset="/shreyas-480.webp 480w, /shreyas-800.webp 800w, /shreyas-1200.webp 1200w"
+      imagesizes="(min-width: 1024px) 400px, (min-width: 768px) 280px, 52vw" />
+  </head>
+  <body>
+    <div id="boot" aria-hidden="true">
+      <div class="c">
+        <p class="a"><span class="p">&gt;</span> booting shreyas.wani <span class="dots">...</span></p>
+        <p class="row">
+          <span class="k a" style="animation-delay: .18s"><svg class="ok" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6.5 4.8 9 10 3"/></svg><span>retrieval</span></span>
+          <span class="k a" style="animation-delay: .27s"><svg class="ok" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6.5 4.8 9 10 3"/></svg><span>kafka</span></span>
+          <span class="k a" style="animation-delay: .36s"><svg class="ok" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6.5 4.8 9 10 3"/></svg><span>redis lock</span></span>
+          <span class="k a" style="animation-delay: .45s"><svg class="ok" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6.5 4.8 9 10 3"/></svg><span>postgres</span></span>
+        </p>
+        <p class="a ok st" style="animation-delay: .6s"><span class="d"></span><span>all systems operational</span></p>
+        <i class="bar"></i>
+      </div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

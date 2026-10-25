@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# SPA fallback for paths without a file of their own (the app renders its 404 there).
+# Also in public/_redirects; kept here so either works. Home and project pages have
+# their own HTML files, which Netlify serves first.
+[[redirects]]
+  from = "/*"
+  to = "/app.html"
+  status = 200

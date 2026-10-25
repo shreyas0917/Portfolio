@@ -1,0 +1,480 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Local fallbacks whose metrics match the web fonts (size-adjust and line
+   metrics measured from the font files), so text set in the fallback takes the
+   same space. When the real font swaps in, nothing reflows. Listed right after
+   each web font in tailwind.config.js. */
+@font-face {
+  font-family: 'Space Grotesk Fallback';
+  src: local('Arial'), local('Helvetica Neue'), local('Helvetica');
+  size-adjust: 103.5%;
+  ascent-override: 95.07%;
+  descent-override: 28.21%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'JetBrains Mono Fallback';
+  src: local('Courier New'), local('Courier');
+  size-adjust: 99.98%;
+  ascent-override: 102.02%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Design tokens — "Observability Console"
+   Channels are space-separated RGB so Tailwind opacity works:
+   bg-surface/60, text-ok/80, etc.
+   Dark is the default; light is a full override.
+   ───────────────────────────────────────────────────────────── */
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+  /* Charcoal → slate, sampled to sit with the portrait's wall + suit */
+  --bg: 10 12 16;            /* #0A0C10 */
+  --bg-elev: 15 19 26;       /* #0F131A */
+  --surface: 20 25 34;       /* #141922 */
+  --surface-2: 26 33 44;     /* #1A212C */
+  --line: 35 43 56;          /* #232B38 */
+  --line-strong: 48 58 74;   /* #303A4A */
+  --fg: 231 236 243;         /* #E7ECF3 */
+  --fg-dim: 174 183 198;     /* #AEB7C6 */
+  --fg-muted: 117 128 145;   /* #758091 */
+
+  /* Status lights — used sparingly, always meaningful */
+  --ok: 63 185 80;           /* healthy  #3FB950 */
+  --warn: 227 160 8;         /* retry    #E3A008 */
+  --fail: 248 81 73;         /* failure  #F85149 */
+  /* Interactive accent — cool teal that echoes the slate wall */
+  --accent: 79 209 197;      /* #4FD1C5 */
+
+  --grid-line: 255 255 255;
+  --grid-alpha: 0.035;
+  --shadow: 0 0 0;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --bg: 244 246 249;
+  --bg-elev: 255 255 255;
+  --surface: 255 255 255;
+  --surface-2: 236 240 245;
+  --line: 216 222 232;
+  --line-strong: 190 199 213;
+  --fg: 14 20 27;
+  --fg-dim: 58 68 82;
+  --fg-muted: 90 101 117;
+
+  --ok: 26 127 55;
+  --warn: 143 95 0;          /* #8F5F00: 4.8:1 for small text on the amber-tinted caveat panels */
+  --fail: 207 34 46;
+  --accent: 14 116 144;
+
+  --grid-line: 14 20 27;
+  --grid-alpha: 0.05;
+  --shadow: 30 40 60;
+}
+
+@layer base {
+  html {
+    background: rgb(var(--bg));
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-bg text-fg font-display antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+  ::selection {
+    background: rgb(var(--accent) / 0.3);
+    color: rgb(var(--fg));
+  }
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  /* Smooth theme swap — only colour properties, never layout. */
+  .theme-transition,
+  .theme-transition *,
+  .theme-transition *::before,
+  .theme-transition *::after {
+    transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease, fill 0.35s ease !important;
+  }
+}
+
+@layer components {
+  .shell {
+    @apply mx-auto w-full max-w-shell px-4 sm:px-6 lg:px-10;
+  }
+
+  /* Faint console grid; fades out toward edges. */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgb(var(--grid-line) / var(--grid-alpha)) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--grid-line) / var(--grid-alpha)) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+  .mask-fade {
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 40%, transparent 100%);
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 40%, transparent 100%);
+  }
+
+  .label {
+    @apply font-mono text-[11px] uppercase tracking-[0.18em] text-fg-muted;
+  }
+
+  /* Below-the-fold sections: the browser skips their layout/paint until they
+     near the viewport, so first paint only pays for the hero. `auto` remembers
+     each section's real height once rendered. Programmatic jumps add
+     .render-all first (see useLenis) so target positions are exact. */
+  .defer-render {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 900px;
+  }
+  .render-all .defer-render {
+    content-visibility: visible;
+  }
+
+  .btn {
+    @apply relative inline-flex items-center gap-2 rounded-md px-4 py-2.5 font-mono text-[13px] font-medium
+      transition-colors duration-200 ease-out-expo;
+  }
+  .btn-primary {
+    @apply btn bg-fg text-bg hover:bg-accent;
+  }
+  .btn-ghost {
+    @apply btn border border-line-strong text-fg hover:border-accent hover:text-accent;
+  }
+  .btn-sm {
+    @apply gap-1.5 px-3 py-2 text-[12px];
+  }
+
+  /* Invisible hit-area extension: a touch target of at least 44×44 px around a
+     small control, without changing how it looks. Only where the extension can't
+     reach a neighbouring control (dense lists need more spacing instead). */
+  .hit-area {
+    position: relative;
+  }
+  .hit-area::before,
+  .btn::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Project cards
+   Each card carries data-signal (ok / warn / fail): its story's status
+   colour, used for the hover glow. Plain CSS, outside @layer, so the
+   attribute selectors are never purged.
+   ───────────────────────────────────────────────────────────── */
+[data-signal='ok'] {
+  --signal: var(--ok);
+}
+[data-signal='warn'] {
+  --signal: var(--warn);
+}
+[data-signal='fail'] {
+  --signal: var(--fail);
+}
+
+.project-card {
+  transition: border-color 0.35s ease, box-shadow 0.35s ease;
+}
+.project-card:hover,
+.project-card:focus-within {
+  border-color: rgb(var(--signal) / 0.35);
+  box-shadow: 0 30px 70px -42px rgb(var(--signal) / 0.6);
+}
+
+/* A 1px border light that follows the pointer (--mx/--my set by ProjectCard). */
+.card-glow {
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgb(var(--signal) / 0.9), transparent 42%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.project-card:hover .card-glow,
+.project-card:focus-within .card-glow {
+  opacity: 1;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Architecture flow diagrams (visuals/FlowDiagram + lib/flow)
+   The player only toggles data-status / data-tone and geometry;
+   every colour comes from the theme tokens here.
+   ───────────────────────────────────────────────────────────── */
+.flow [data-tone='info'] {
+  --tone: var(--accent);
+}
+.flow [data-tone='ok'] {
+  --tone: var(--ok);
+}
+.flow [data-tone='warn'] {
+  --tone: var(--warn);
+}
+.flow [data-tone='fail'] {
+  --tone: var(--fail);
+}
+.flow-edge {
+  stroke: rgb(var(--line-strong));
+  stroke-width: 1;
+}
+.flow-node rect {
+  fill: rgb(var(--bg-elev));
+  stroke: rgb(var(--fg-muted) / 0.75);
+  stroke-width: 1;
+  transition: fill 0.3s ease, stroke 0.3s ease;
+}
+.flow-node[data-status='ok'] rect {
+  fill: rgb(var(--ok) / 0.25);
+  stroke: rgb(var(--ok));
+}
+.flow-node[data-status='warn'] rect {
+  fill: rgb(var(--warn) / 0.25);
+  stroke: rgb(var(--warn));
+}
+.flow-node[data-status='fail'] rect {
+  fill: rgb(var(--fail) / 0.25);
+  stroke: rgb(var(--fail));
+}
+.flow-pulse {
+  fill: none;
+  stroke: rgb(var(--tone, var(--accent)));
+  stroke-width: 1.25;
+}
+.flow-packet {
+  fill: rgb(var(--tone));
+}
+.flow-trail {
+  stroke: rgb(var(--tone) / 0.45);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.flow-trace {
+  fill: none;
+  stroke: rgb(var(--tone));
+  stroke-width: 1.25;
+}
+.flow-label {
+  fill: rgb(var(--fg-dim));
+  font-size: 10px;
+}
+.flow-detail {
+  fill: rgb(var(--fg-muted));
+  font-size: 9px;
+}
+.flow-note {
+  fill: rgb(var(--tone));
+  font-size: 9.5px;
+  font-weight: 500;
+}
+
+/* Project pages: selectable nodes (hover, focus or tap shows what a component does). */
+.flow-hit {
+  fill: transparent;
+  cursor: pointer;
+  outline: none;
+}
+.flow-hit:focus-visible {
+  stroke: rgb(var(--accent));
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.flow-select {
+  fill: none;
+  stroke: rgb(var(--accent));
+  stroke-width: 1;
+  stroke-dasharray: 2 2.5;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.flow-node[data-selected='true'] .flow-select {
+  opacity: 1;
+}
+.flow-node[data-selected='true'] .flow-label {
+  fill: rgb(var(--fg));
+}
+
+/* Contact form request trace: a packet hopping client → formspree while in flight. */
+@keyframes trace-hop {
+  from {
+    left: -6px;
+  }
+  to {
+    left: 100%;
+  }
+}
+.trace-packet {
+  animation: trace-hop 0.9s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* Screenshot lightbox (native <dialog>). */
+.lightbox::backdrop {
+  background: rgb(var(--bg) / 0.88);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+/* Command palette (native <dialog>, components/CommandPalette). */
+.palette::backdrop {
+  background: rgb(var(--bg) / 0.72);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.palette[open] {
+  animation: palette-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes palette-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.985);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Intro choreography
+   CSS keyframes instead of JS-driven tweens: the browser runs them
+   off the main thread, so the hero animates without competing with
+   hydration on slow phones. Start time per element: style="--d: .35s".
+   Keyframes only define `from`; each ends at the element's own style.
+   ───────────────────────────────────────────────────────────── */
+@layer utilities {
+  .intro {
+    animation-duration: var(--dur, 0.9s);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    animation-delay: var(--d, 0s);
+    animation-fill-mode: both;
+  }
+  /* Line rises out of an overflow-hidden mask. */
+  .intro-mask {
+    animation-name: intro-mask;
+  }
+  .intro-rise {
+    animation-name: intro-rise;
+    --dur: 0.6s;
+  }
+  .intro-word {
+    animation-name: intro-word;
+    --dur: 0.5s;
+  }
+  /* Status underline drawn left → right. */
+  .intro-draw {
+    animation-name: intro-draw;
+    transform-origin: left;
+    --dur: 0.55s;
+  }
+  .intro-wipe {
+    animation-name: intro-wipe;
+    --dur: 1.1s;
+  }
+  /* `scale` / `translate` are separate from `transform`, so these compose
+     with Framer Motion's pointer tilt/parallax on the same elements.
+     fill-mode backwards hands the property back once the intro ends. */
+  .intro-settle {
+    animation-name: intro-settle;
+    animation-fill-mode: backwards;
+    --dur: 1.6s;
+  }
+  .intro-lift {
+    animation-name: intro-lift;
+    animation-fill-mode: backwards;
+  }
+  .intro-fade {
+    animation-name: intro-fade;
+    --dur: 0.8s;
+  }
+}
+
+@keyframes intro-mask {
+  from { transform: translateY(110%); }
+}
+@keyframes intro-rise {
+  from { opacity: 0; transform: translateY(14px); }
+}
+@keyframes intro-word {
+  from { opacity: 0; transform: translateY(0.4em); filter: blur(4px); }
+}
+@keyframes intro-draw {
+  from { transform: scaleX(0); }
+}
+@keyframes intro-wipe {
+  from { clip-path: inset(100% 0 0 0); }
+}
+@keyframes intro-settle {
+  from { scale: 1.12; }
+}
+@keyframes intro-lift {
+  from { translate: 0 24px; }
+}
+@keyframes intro-fade {
+  from { opacity: 0; }
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Custom cursor (components/CustomCursor): the native cursor is hidden only
+   where the custom one fully replaces it. Text fields keep their I-beam, a
+   text-selection drag gets it back, and modal dialogs (top layer, above the
+   custom cursor) use the native cursor throughout. */
+html.has-custom-cursor,
+html.has-custom-cursor a,
+html.has-custom-cursor button,
+html.has-custom-cursor [data-cursor-label],
+html.has-custom-cursor .flow-hit {
+  cursor: none;
+}
+html.has-custom-cursor :is(input, textarea, [contenteditable='true']) {
+  cursor: text;
+}
+html.has-custom-cursor dialog[open],
+html.has-custom-cursor dialog[open] * {
+  cursor: auto;
+}
+html.has-custom-cursor dialog[open] :is(a, button, [role='option']) {
+  cursor: pointer;
+}
+html.cursor-selecting,
+html.cursor-selecting * {
+  cursor: text !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* No intro at all: content is simply there, with no staggered delays. */
+  .intro {
+    animation: none !important;
+  }
+}
